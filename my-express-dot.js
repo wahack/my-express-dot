@@ -4,18 +4,28 @@ var fs = require('fs');
 var _cache = {};
 var  layoutStr = '';
 var  viewsDir;
-
-var  _def = {
+var Def = function(){};
+Def.prototype = {
   load: function( pathToFile ){
     var text;
     text = fs.readFileSync(viewsDir + '/' + pathToFile, 'utf8');
     return text;
   },
   sayHello: function(str){
-    console.log(str);
-    return 'hellfo'+str;
+    return 'hello {{='+str+'}}';
   }
 };
+// var  _def = {
+//   load: function( pathToFile ){
+//     var text;
+//     text = fs.readFileSync(viewsDir + '/' + pathToFile, 'utf8');
+//     return text;
+//   },
+//   sayHello: function(str){
+//     console.log(str);
+//     return 'hellfo'+str;
+//   }
+// };
 
 function _renderFile(filename, options, cb){
   // options.cache = options.settings.cache;
@@ -26,6 +36,7 @@ function _renderFile(filename, options, cb){
   return fs.readFile(filename, 'utf8', function(err, str){
     if(err)  return cb(err);
     var templateStr = str + layoutStr;
+    var _def = new Def();
     templateFunc = doT.template(templateStr, null, _def);
     if( options.cache ) _cache[filename] = templateFunc;
     return cb(null, templateFunc(options));
